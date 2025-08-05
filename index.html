@@ -1,0 +1,168 @@
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lepeskins&Kartoshkins Food</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Arial', sans-serif;
+      background: linear-gradient(rgba(255,192,203,0.6), rgba(255,192,203,0.6)), url('photo1.jpg');
+      background-size: cover;
+      background-position: center;
+      color: #fff;
+      padding: 1rem;
+      transition: background-image 1s ease-in-out;
+    }
+    h1 { text-align: center; font-size: 2rem; margin-bottom: 1rem; color: #ffe6f0; text-shadow: 1px 1px 4px #000; }
+    h2 { margin-top: 2rem; font-size: 1.5rem; color: #fff5f8; text-shadow: 1px 1px 3px #000; }
+    .menu { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 1rem; margin-top: 1rem; }
+    .item {
+      background: rgba(255, 192, 203, 0.85);
+      padding: 1rem;
+      border-radius: 12px;
+      text-align: center;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+    .item h3 { margin-bottom: 0.5rem; }
+    .item p { font-weight: bold; }
+    button { margin-top: 0.5rem; padding: 0.5rem 1rem; background-color: #ff69b4; color: white; border: none; border-radius: 6px; font-size: 1rem; cursor: pointer; }
+    #submit-order {
+      margin-top: 1rem;
+      padding: 0.7rem 1rem;
+      font-size: 1rem;
+      background-color: #ff1493;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      width: 100%;
+    }
+    .order {
+      margin-top: 2rem;
+      padding: 1rem;
+      background: rgba(255, 182, 193, 0.9);
+      border-radius: 10px;
+      color: #000;
+    }
+    #comment {
+      width: 100%;
+      margin-top: 1rem;
+      padding: 0.5rem;
+      border-radius: 6px;
+      border: none;
+      font-size: 1rem;
+    }
+    @media (max-width: 480px) {
+      .menu { grid-template-columns: 1fr; }
+      button { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <h1>Lepeskins&Kartoshkins Food</h1>
+  <div id="content"></div>
+  <div class="order">
+    <p>Вы выбрали: <span id="order-list">ничего</span></p>
+    <p>Итог: <span id="total">0</span> поцелуев</p>
+    <textarea id="comment" placeholder="Комментарий к заказу..."></textarea>
+    <button id="submit-order">Оформить заказ</button>
+  </div>
+  <script>
+    const backgrounds = ['photo1.jpg', 'photo2.jpg', 'photo3.jpg'];
+    let bgIndex = 0;
+    setInterval(() => {
+      bgIndex = (bgIndex + 1) % backgrounds.length;
+      document.body.style.backgroundImage = `linear-gradient(rgba(255,192,203,0.6), rgba(255,192,203,0.6)), url('${backgrounds[bgIndex]}')`;
+    }, 5000);
+
+    const menuData = {
+      "Основное меню": ["Паста Карбонара", "Паста Итальянская", "Макароны с сыром", "Гречневая каша с сыром", "Греческий салат", "Жаренная картошка", "Стейк с картошкой пюре", "Суп (куриный, сырный, борщ)", "Овощная тарелка"],
+      "Завтрак — Напитки": ["Капучино", "Американо", "Бамбл", "Кофе с сиропом", "Энергетик", "Чай"],
+      "Завтрак — Еда": ["Яичница с овощами", "Омлет", "Шоколадки/Вкусняшки", "Овсяная каша с фруктами", "Тост с плавленным сыром", "Орехи (на выбор)", "Творог"],
+      "Ужин": ["Чипсы", "Газировка", "БПшка", "Сладенькое", "Фрукты", "Пельмешки", "Гречка с опятами", "Шаверма"],
+      "Ночной ЖОР (до 22:55)": ["ВСЕ ЧТО УСПЕЕМ ЗАКАЗАТЬ В САМОКАТЕ ИЛИ КУПИТЬ В МАГАЗИНЕ"]
+    };
+
+    const contentDiv = document.getElementById('content');
+    const orderList = document.getElementById('order-list');
+    const total = document.getElementById('total');
+    const commentInput = document.getElementById('comment');
+
+    let selectedItems = [];
+    let totalPrice = 0;
+    const pricePerItem = 10;
+
+    function updateOrder() {
+      orderList.textContent = selectedItems.length ? selectedItems.join(', ') : 'ничего';
+      total.textContent = selectedItems.length * pricePerItem;
+    }
+
+    for (const [section, items] of Object.entries(menuData)) {
+      const sectionTitle = document.createElement('h2');
+      sectionTitle.textContent = section;
+      contentDiv.appendChild(sectionTitle);
+      const sectionDiv = document.createElement('div');
+      sectionDiv.className = 'menu';
+
+      items.forEach(name => {
+        const div = document.createElement('div');
+        div.className = 'item';
+        div.innerHTML = `
+          <h3>${name}</h3>
+          <p>10 поцелуев</p>
+          <button>Добавить</button>
+        `;
+        div.querySelector('button').onclick = () => {
+          selectedItems.push(name);
+          updateOrder();
+        };
+        sectionDiv.appendChild(div);
+      });
+      contentDiv.appendChild(sectionDiv);
+    }
+
+    const BOT_TOKEN = '8379872735:AAGRR2vEqYq6cluavGtNL9gGaxGyJKRKeAc';
+    const CHAT_ID = '8379872735';
+
+    document.getElementById('submit-order').onclick = () => {
+      if (!selectedItems.length) {
+        alert('Вы ничего не выбрали!');
+        return;
+      }
+      const comment = commentInput.value.trim();
+      const message = `🍽 Заказ с сайта Lepeskins&Kartoshkins Food:
+
+` +
+                      `Блюда: ${selectedItems.join(', ')}
+` +
+                      `Итоговая сумма: ${selectedItems.length * pricePerItem} поцелуев` +
+                      (comment ? `
+Комментарий: ${comment}` : '');
+      fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ chat_id: CHAT_ID, text: message })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.ok) {
+          alert('✅ Заказ отправлен в Telegram!');
+          selectedItems = [];
+          updateOrder();
+          commentInput.value = '';
+        } else {
+          alert('❌ Ошибка отправки заказа.');
+          console.error(data);
+        }
+      })
+      .catch(err => {
+        alert('❌ Не удалось связаться с Telegram API.');
+        console.error(err);
+      });
+    };
+  </script>
+</body>
+</html>
